@@ -9,13 +9,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Configuration
-@Slf4j
-public class KeycloakConfig {
+public class KeycloakProvider {
     @Value("${keycloak.auth-server-url}")
     private String authServerUrl;
+    @Value("${keycloak.credentials.secret}")
+    private String clientSecret;
+    @Value("${keycloak.realm}")
+    private String realm;
+    @Value("${keycloak.resource}")
+    private String clientId;
+
     @Value("${kk.admin.realm}")
     private String adminRealm;
     @Value("${kk.admin.resource}")
@@ -25,12 +29,13 @@ public class KeycloakConfig {
     @Value("${kk.admin.password}")
     private String adminPassword;
 
+
     @Bean
     public KeycloakConfigResolver keycloakConfigResolver() {
         return new KeycloakSpringBootConfigResolver();
     }
 
-    @Bean(name = "KeycloakAdmin")
+    @Bean(name = "keycloakAdmin")
     public Keycloak KeycloakAdmin() {
         return KeycloakBuilder.builder().serverUrl(authServerUrl)
                 .realm(adminRealm)
@@ -38,6 +43,15 @@ public class KeycloakConfig {
                 .username(adminUsername)
                 .password(adminPassword)
                 .grantType(OAuth2Constants.PASSWORD)
+                .build();
+    }
+    public Keycloak Keycloak(String username, String password) {
+        return KeycloakBuilder.builder().serverUrl(authServerUrl)
+                .realm(realm)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .username(username)
+                .password(password)
                 .build();
     }
 }
